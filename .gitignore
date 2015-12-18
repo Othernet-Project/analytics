@@ -1,0 +1,7 @@
+*.py[co]
+*.sw[op]
+/*.egg-info
+/dist
+/tmp
+.webassets-cache
+/.ropeproject
