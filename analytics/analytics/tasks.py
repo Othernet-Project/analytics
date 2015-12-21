@@ -18,7 +18,14 @@ def process_stats(supervisor, data):
     stats = StatBitStream.from_bytes(data[DEVICE_ID_LENGTH:])
     db = supervisor.exts.databases.reports
     for entry in stats:
-        data = dict(device_id=device_id)
+        path_hash = entry.pop('path', None)
+        try:
+            path = supervisor.app.known_paths[path_hash]
+        except KeyError:
+            logging.error('Path hash not recognized: {}'.format(path_hash))
+            continue
+
+        data = dict(device_id=device_id, path=path)
         data.update(entry)
         utc_timestamp = data['timestamp']
         local_tz = tzoffset(None, to_seconds(data['timezone']))
