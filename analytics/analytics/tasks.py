@@ -27,6 +27,8 @@ def process_stats(supervisor, data):
         data['local_timestamp'] = (utc_timestamp.astimezone(local_tz)
                                                 .replace(tzinfo=None))
         data['timestamp'] = utc_timestamp.replace(tzinfo=None)
-        q = db.Insert(ANALYTICS_TABLE, cols=data.keys())
+        q = db.Replace(ANALYTICS_TABLE,
+                       cols=data.keys(),
+                       constraints=('timestamp', 'device_id', 'user_id'))
         db.execute(q, data)
     logging.debug("%s stat entries stored from %s", len(stats), device_id)
