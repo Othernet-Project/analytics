@@ -1,8 +1,9 @@
 import logging
+import uuid
 
 from dateutil.tz import tzoffset
 
-from .bitstream import bytes_to_hex
+from bitpack.utils import bytes_to_hex
 from .data import StatBitStream, DEVICE_ID_LENGTH
 
 
@@ -13,8 +14,12 @@ def to_seconds(hours):
     return hours * 60 * 60
 
 
+def uuidify(hex_string):
+    return str(uuid.UUID(str(hex_string), version=4))
+
+
 def process_stats(supervisor, data):
-    device_id = bytes_to_hex(data[:DEVICE_ID_LENGTH])
+    device_id = uuidify(bytes_to_hex(data[:DEVICE_ID_LENGTH]))
     stats = StatBitStream.from_bytes(data[DEVICE_ID_LENGTH:])
     db = supervisor.exts.databases.reports
     for entry in stats:
