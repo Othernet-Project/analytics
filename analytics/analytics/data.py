@@ -1,7 +1,13 @@
+import calendar
+import datetime
 import functools
 import hashlib
+import logging
 
-from .bitstream import BitStream, BitField
+from bitpack import BitStream, BitField, register_data_type
+from bitpack.utils import pack, unpack
+from pytz import utc
+
 
 DESKTOP = 1
 PHONE = 2
@@ -62,6 +68,27 @@ OS_FAMILIES = [
     'Windows Vista',
     'Windows XP',
 ]
+
+
+def from_utc_timestamp(timestamp):
+    """Converts the passed-in unix UTC timestamp into a datetime object."""
+    timestamp = float(unpack('>i', timestamp))
+    dt = datetime.datetime.utcfromtimestamp(timestamp)
+    return dt.replace(tzinfo=utc)
+
+
+def to_utc_timestamp(dt):
+    """Converts the passed-in datetime object into a unix UTC timestamp."""
+    if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+        msg = "Naive datetime object passed. It is assumed that it's in UTC."
+        logging.warning(msg)
+    elif dt.tzinfo != utc:
+        # local datetime with tzinfo
+        return pack('>i', calendar.timegm(dt.utctimetuple()))
+    return pack('>i', calendar.timegm(dt.timetuple()))
+
+
+register_data_type('timestamp', to_utc_timestamp, from_utc_timestamp)
 
 
 def round_to_nearest(n):
