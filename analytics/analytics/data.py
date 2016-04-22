@@ -15,7 +15,7 @@ TABLET = 3
 OTHER = 0
 DEVICE_ID_LENGTH = 16
 
-ACTIONS = ['file', 'html', 'image', 'audio', 'video', 'folder', 'download']
+ACTIONS = ['html', 'image', 'audio', 'video', 'folder', 'download', 'file']
 OS_FAMILIES = [
     'Android',
     'Arch Linux',
