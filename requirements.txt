@@ -1,4 +1,4 @@
-bitpack==0.1
+bitpack==1.0
 bottle==0.12.9
 bottle-utils==0.8
 chainable-validators==0.8.2
