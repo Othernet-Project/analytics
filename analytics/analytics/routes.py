@@ -3,7 +3,7 @@ import logging
 
 from bottle import request, response, auth_basic
 
-from .tasks import process_stats
+from .tasks import process_stats, LOOKUP_TABLE, LOOKUP_COLS
 
 
 def collect_stats():
@@ -27,10 +27,10 @@ def update_paths():
         logging.exception("Update of known path hashes failed.")
         response.status = 400
     else:
-        # update in-memory store and then write complete data into file
-        request.app.known_paths.update(data)
-        with open(request.app.config['updates.file'], 'w') as updates_file:
-            json.dump(request.app.known_paths, updates_file)
+        db = request.app.supervisor.exts.databases.reports
+        q = db.Replace(LOOKUP_TABLE, cols=LOOKUP_COLS, constraints=('md5',))
+        map_seq = (dict(md5=tup[0], path=tup[1]) for tup in data.items())
+        db.executemany(q, map_seq)
         logging.info("Received {} new paths.".format(len(data)))
         return 'OK'
 
